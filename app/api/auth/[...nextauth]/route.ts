@@ -46,6 +46,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   adapter: PrismaAdapter(prisma) as Adapter,
+  secret: process.env.NEXTAUTH_SECRET ?? "",
   //nextauth will enforce a 'database' session strategy by default
 };
 

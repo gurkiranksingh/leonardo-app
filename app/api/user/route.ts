@@ -24,7 +24,6 @@ export async function PUT(req: Request) {
         },
         data: { title, username },
       });
-      console.log(results);
 
       return NextResponse.json({ status: 200 });
     } else return NextResponse.json({ status: 400 });

@@ -24,7 +24,51 @@ export default function Home() {
   const [isOpen, setOpen] = useState(true);
   const [username, setUsername] = useState("");
   const [title, setTitle] = useState("");
+  const [data, setData] = useState({});
 
+  const getPublicData = async () => {
+    var query = `
+      query ($id: Int) { # Define which variables will be used in the query (id)
+        Media (id: $id, type: ANIME) { # Insert our variables into the query arguments (id) (type: ANIME is hard-coded in the query)
+          id
+          title {
+            romaji
+            english
+            native
+          }
+        }
+      }
+      `;
+    // Define our query variables and values that will be used in the query request
+    var variables = {
+      id: 15125,
+    };
+
+    // Define the config we'll need for our Api request
+    var url = "https://graphql.anilist.co",
+      options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: query,
+          variables: variables,
+        }),
+      };
+    // Make the HTTP Api request
+    return await fetch(url, options)
+      .then((res) => {
+        return res.json().then(function (json) {
+          return res.ok ? json : Promise.reject(json);
+        });
+      })
+      .then((data) => {
+        setData(data);
+      })
+      .catch((err) => console.error(err));
+  };
   //Note: this should really be in the session state - to be configured in [...nextauth] callbacks
   useEffect(() => {
     const getUserDetails = async () => {
@@ -41,6 +85,7 @@ export default function Home() {
       });
     };
     getUserDetails();
+    getPublicData();
   }, [session]);
 
   const onClose = () => {
@@ -121,7 +166,7 @@ export default function Home() {
                 <br></br>
                 Title: {title}
                 <br></br>
-                <>{JSON.stringify({ hello: 'you' })}</>
+                <>{JSON.stringify(data)}</>
               </div>
               <Button onClick={async () => await signOut()}>
                 <h3 className="text-xl">Sign Out</h3>
